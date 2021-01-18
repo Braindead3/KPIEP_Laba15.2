@@ -7,29 +7,35 @@ using System.Threading.Tasks;
 
 namespace KPIEP_Laba15._2
 {
-    class feodalGame
+    class FeodalGame
     {
         Player player;
-        private delegate void   RabotyagaHandler(string message);
-        private event RabotyagaHandler Notify =delegate(string mes)
-        {
-            Console.WriteLine(mes);
-        };
+        public delegate void   RabotyagaHandler(string message);
+        public event RabotyagaHandler Notify;
 
-        public feodalGame(Player player)
+        public FeodalGame(Player player)
         {
             this.player = player;
         }
 
-        public void PodnyatNalogi()
+        public int PodnyatNalogi()
         {
-            player.gold++;
-            player.procRabotyag -= 20;
+            if (player.gold - 1 < 0)
+            {
+                Console.WriteLine("Вы проиграли");
+                return 0;
+            }
+            else
+            {
+                player.gold++;
+                player.procRabotyag -= 20;
+                return 1;
+            }
         }
 
         public int opustitNalogi()
         {
-            if (--player.gold < 0)
+            if (player.gold-1 < 0)
             {
                 Console.WriteLine("Вы проиграли");
                 return 0;
@@ -59,7 +65,7 @@ namespace KPIEP_Laba15._2
 
         public int DatVolnuyu()
         {
-            if (--player.rabotyagi<0)
+            if (player.rabotyagi-1<0)
             {
                 Console.WriteLine("Вы проиграли");
                 return 0;
@@ -83,15 +89,32 @@ namespace KPIEP_Laba15._2
             {
                 player.gold -= 20;
                 player.rabotyagi++;
-                player.procRabotyag += 1;
+                player.procRabotyag += 10;
                 return 1;
             }
         }
 
-        public void EndTurn()
+        public int EndTurn()
         {
-            player.kolvoRabotyag += player.kolvoRabotyag * player.procRabotyag;
-            Notify?.Invoke("Появился работяга");
+            if (player.rabotyagi+Convert.ToInt32(player.rabotyagi * (player.procRabotyag / 100)) > player.limitRabotyag)
+            {
+                Console.WriteLine("Слишком мало домов, нужно больше места.");
+            }
+            else
+            {
+                Console.Clear();
+                player.rabotyagi += Convert.ToInt32(player.rabotyagi * (player.procRabotyag / 100));
+                if (player.rabotyagi<0)
+                {
+                    Console.WriteLine("Вы проиграли");
+                    return 0;
+                }
+                else
+                {
+                    Notify?.Invoke("Появился работяга!!!");
+                }
+            }
+            return 1;
         }
 
         public Player ReturnPlayer()
